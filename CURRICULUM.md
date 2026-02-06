@@ -366,9 +366,9 @@ result = SearchResult.model_validate(api_response)
 - `src/file_search/exceptions.py`에 커스텀 예외 클래스 정의
 
 ### 체크리스트
-- [ ] Pydantic 모델로 JSON 데이터를 파싱할 수 있다
-- [ ] 커스텀 예외 클래스를 정의하고 raise/except 할 수 있다
-- [ ] 타입 힌트를 사용한 코드에 `uv run mypy src/`를 실행해 통과한다
+- [x] Pydantic 모델로 JSON 데이터를 파싱할 수 있다
+- [x] 커스텀 예외 클래스를 정의하고 raise/except 할 수 있다
+- [x] 타입 힌트를 사용한 코드에 `uv run mypy src/`를 실행해 통과한다
 
 ---
 
