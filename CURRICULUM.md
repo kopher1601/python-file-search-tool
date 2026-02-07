@@ -447,10 +447,10 @@ result = SearchResult.model_validate(api_response)
 > Gemini File Search는 **API 키만으로** 동작하므로 OAuth2 대비 훨씬 간단하다.
 
 ### 체크리스트
-- [ ] Google AI Studio에서 API 키를 발급받았다
-- [ ] `.env` 파일에 API 키가 저장되고 `.gitignore`에 포함되었다
-- [ ] `get_client()`로 Gemini 클라이언트를 생성할 수 있다
-- [ ] 간단한 `generate_content` 호출이 정상 동작한다
+- [x] Google AI Studio에서 API 키를 발급받았다
+- [x] `.env` 파일에 API 키가 저장되고 `.gitignore`에 포함되었다
+- [x] `get_client()`로 Gemini 클라이언트를 생성할 수 있다
+- [x] 간단한 `generate_content` 호출이 정상 동작한다
 
 ---
 
