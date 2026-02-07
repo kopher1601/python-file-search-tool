@@ -649,11 +649,11 @@ result = SearchResult.model_validate(api_response)
 | 데이터 | JSON, XML, HTML, CSV, SQL |
 
 ### 체크리스트
-- [ ] `fsearch store create` 로 FileSearchStore를 생성할 수 있다
-- [ ] `fsearch store list` 로 Store 목록이 테이블로 출력된다
-- [ ] `fsearch file upload` 로 파일이 Store에 업로드된다
-- [ ] `fsearch file list` 로 Store 내 파일 목록을 조회할 수 있다
-- [ ] `--help` 로 각 명령어의 도움말이 표시된다
+- [x] `fsearch store create` 로 FileSearchStore를 생성할 수 있다
+- [x] `fsearch store list` 로 Store 목록이 테이블로 출력된다
+- [x] `fsearch file upload` 로 파일이 Store에 업로드된다
+- [x] `fsearch file list` 로 Store 내 파일 목록을 조회할 수 있다
+- [x] `--help` 로 각 명령어의 도움말이 표시된다
 
 ---
 

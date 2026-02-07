@@ -3,7 +3,9 @@
     "allow": [
       "WebSearch",
       "WebFetch(domain:ai.google.dev)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(uv add:*)",
+      "Bash(git rm:*)"
     ]
   }
 }
