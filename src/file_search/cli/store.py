@@ -2,6 +2,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from file_search.cli import normalize_store_name
 from file_search.core.client import get_client
 
 store_app = typer.Typer(help="File Search Store 관리")
@@ -46,6 +47,7 @@ def delete_store(
     force: bool = typer.Option(False, "--force", "-f"),
 ) -> None:
     """FileSearchStore를 삭제한다."""
+    name = normalize_store_name(name)
     if not force:
         confirm = typer.confirm(f"'{name}'을(를) 삭제하시겠습니까?")
         if not confirm:

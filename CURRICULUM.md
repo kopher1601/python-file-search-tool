@@ -681,12 +681,15 @@ Gemini API (tools=[FileSearch(store_names=[...])])
 ### 실습 내용
 
 1. **검색 명령어** (`src/file_search/cli/search.py`)
+
+   `query`와 `chat`은 `fsearch query ...`, `fsearch chat ...`처럼 루트 레벨 커맨드로 동작한다.
+   `store`/`file`처럼 서브커맨드 그룹이 아니므로, 별도의 Typer 앱 없이 **일반 함수로 정의**한 뒤 `app.py`에서 등록한다.
+
    ```python
    import typer
    from rich.console import Console
    from rich.markdown import Markdown
    from rich.panel import Panel
-   from google import genai
    from google.genai import types
 
    console = Console()
@@ -732,9 +735,39 @@ Gemini API (tools=[FileSearch(store_names=[...])])
                    console.print(f"  {i}. {source.title or 'Unknown'}")
    ```
 
-2. **대화형 검색 모드** (선택 구현)
+2. **app.py에 루트 커맨드 등록** (`src/file_search/cli/app.py`)
+
+   Typer에서 커맨드를 등록하는 방식은 두 가지다:
+
+   | 방식 | 사용법 | CLI 결과 |
+   |------|--------|----------|
+   | `app.add_typer(sub_app, name="store")` | 서브커맨드 **그룹** 등록 | `fsearch store create`, `fsearch store list` |
+   | `app.command("query")(func)` | 루트에 **개별 커맨드** 등록 | `fsearch query "질문"` |
+
+   `query`와 `chat`은 서브커맨드 그룹 없이 루트에 직접 붙으므로 `app.command()`를 사용한다.
+
    ```python
-   @search_app.command("chat")
+   import typer
+
+   from file_search.cli.store import store_app
+   from file_search.cli.file import file_app
+   from file_search.cli.search import query, chat
+
+   app = typer.Typer(help="Gemini File Search CLI Tool")
+
+   # 서브커맨드 그룹 등록 (git remote add, git remote remove 처럼 2단계)
+   app.add_typer(store_app, name="store")
+   app.add_typer(file_app, name="file")
+
+   # 루트 커맨드 등록 (git status, git log 처럼 1단계)
+   app.command("query")(query)
+   app.command("chat")(chat)
+   ```
+
+   > **참고:** `app.command("query")(query)`는 `@app.command("query")` 데코레이터를 함수 호출로 바꾼 것이다. search.py에서 직접 `@app.command()`를 쓰면 app.py와 search.py 간 순환 import가 발생하므로, 함수로 정의한 뒤 app.py에서 등록하는 방식을 사용한다.
+
+3. **대화형 검색 모드** (`src/file_search/cli/search.py`에 추가, 선택 구현)
+   ```python
    def chat(
        store_name: str = typer.Option(..., "--store", "-s"),
    ) -> None:
@@ -779,7 +812,7 @@ Gemini API (tools=[FileSearch(store_names=[...])])
            console.print(f"\n[bold cyan]A:[/bold cyan] {response.text}\n")
    ```
 
-3. **응답 모델 정의** (`src/file_search/models/schemas.py`)
+4. **응답 모델 정의** (`src/file_search/models/schemas.py`)
    ```python
    from pydantic import BaseModel
 
@@ -794,10 +827,10 @@ Gemini API (tools=[FileSearch(store_names=[...])])
    ```
 
 ### 체크리스트
-- [ ] `fsearch query "질문" --store <name>` 으로 문서 기반 답변을 받을 수 있다
-- [ ] 답변에 인용(citation)이 포함된다
-- [ ] Rich Markdown으로 답변이 깔끔하게 출력된다
-- [ ] 대화형 모드에서 연속 질의가 가능하다
+- [x] `fsearch query "질문" --store <name>` 으로 문서 기반 답변을 받을 수 있다
+- [x] 답변에 인용(citation)이 포함된다
+- [x] Rich Markdown으로 답변이 깔끔하게 출력된다
+- [x] 대화형 모드에서 연속 질의가 가능하다
 
 ---
 

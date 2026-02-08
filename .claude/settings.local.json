@@ -5,7 +5,8 @@
       "WebFetch(domain:ai.google.dev)",
       "Bash(ls:*)",
       "Bash(uv add:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(find:*)"
     ]
   }
 }
