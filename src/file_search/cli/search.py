@@ -5,9 +5,43 @@ import typer
 from rich.console import Console
 from file_search.cli import normalize_store_name
 from file_search.core.client import get_client
+from file_search.models.schemas import SearchResponse, Citation
 
 search_app = typer.Typer(help="Search")
 console = Console()
+
+
+def _parse_response(response, model_name: str) -> SearchResponse:
+    """Gemini API 응답을 SearchResponse 모델로 변환한다."""
+    citations: list[Citation] = []
+    if response.candidates and response.candidates[0].grounding_metadata:
+        metadata = response.candidates[0].grounding_metadata
+        if metadata.grounding_chunks:
+            for chunk in metadata.grounding_chunks:
+                source = chunk.retrieved_context
+                citations.append(Citation(
+                    title=source.title or None,
+                    content=source.uri if hasattr(source, "uri") else None,
+                ))
+    return SearchResponse(
+        answer=response.text,
+        citations=citations,
+        model=model_name,
+    )
+
+
+def _print_response(sr: SearchResponse) -> None:
+    """SearchResponse를 Rich로 출력한다."""
+    console.print(Panel(
+        Markdown(sr.answer),
+        title="[bold cyan]Answer[/bold cyan]",
+        border_style="cyan",
+    ))
+    if sr.citations:
+        console.print("\n[bold yellow]Sources:[/bold yellow]")
+        for i, cite in enumerate(sr.citations, 1):
+            console.print(f" {i}. {cite.title or 'Unknown'}")
+
 
 def query(
     question: str = typer.Argument(..., help="検索質問"),
@@ -32,19 +66,8 @@ def query(
         ),
     )
 
-    console.print(Panel(
-        Markdown(response.text),
-        title="[bold cyan]Answer[/bold cyan]",
-        border_style="cyan",
-    ))
-
-    if response.candidates and response.candidates[0].grounding_metadata:
-        metadata = response.candidates[0].grounding_metadata
-        if metadata.grounding_chunks:
-            console.print("\n[bold yellow]Sources: [/bold yellow]")
-            for i, chunk in enumerate(metadata.grounding_chunks, 1):
-                source = chunk.retrieved_context
-                console.print(f" {i}. {source.title or 'Unknown'}")
+    sr = _parse_response(response, model)
+    _print_response(sr)
 
 @search_app.command("chat")
 def chat(
@@ -85,4 +108,5 @@ def chat(
             role="model",
             parts=[types.Part(text=response.text)],
         ))
-        console.print(f"\n[bold cyan]A: [/bold cyan] {response.text}\n")
+        sr = _parse_response(response, "gemini-2.5-flash")
+        _print_response(sr)
